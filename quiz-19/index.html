@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quale delle Tre? - Quiz #19</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.94);
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --primary-color: #0284c7;
+            --border-color: #cbd5e1;
+            --btn-bg: #f8fafc;
+            --btn-hover: #e0f2fe;
+            --correct-bg: #dcfce7;
+            --correct-border: #16a34a;
+            --correct-text: #14532d;
+            --wrong-bg: #fee2e2;
+            --wrong-border: #dc2626;
+            --wrong-text: #7f1d1d;
+        }
+
+        /* Modalità Luce Rossa per osservazioni notturne */
+        body.red-mode {
+            --bg-color: #050000;
+            --card-bg: rgba(25, 0, 0, 0.92);
+            --text-color: #ff3333;
+            --text-muted: #aa2222;
+            --primary-color: #ff0000;
+            --border-color: #550000;
+            --btn-bg: #280000;
+            --btn-hover: #440000;
+            --correct-bg: #280a0a;
+            --correct-border: #ff4444;
+            --correct-text: #ff8888;
+            --wrong-bg: #3c0000;
+            --wrong-border: #990000;
+            --wrong-text: #ff6666;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.88)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 800 800"><radialGradient id="sky" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%230f172a"/><stop offset="100%" stop-color="%23020617"/></radialGradient><rect width="800" height="800" fill="url(%23sky)"/><g fill="%23ffffff" opacity="0.6"><circle cx="120" cy="150" r="1.5"/><circle cx="450" cy="80" r="1"/><circle cx="700" cy="200" r="2"/><circle cx="300" cy="350" r="1"/><circle cx="150" cy="600" r="1.5"/><circle cx="600" cy="550" r="2"/><circle cx="750" cy="700" r="1"/></g></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color); 
+            padding: 30px 20px; 
+            max-width: 680px; 
+            margin: auto; 
+            box-sizing: border-box;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.red-mode {
+            background: #050000;
+        }
+
+        /* Pulsante Luce Rossa fissato in alto a destra, staccato dal contenuto */
+        .top-bar {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+        }
+
+        .red-mode-toggle {
+            background-color: #b91c1c;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+
+        .red-mode-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        body.red-mode .red-mode-toggle {
+            background-color: #ff0000;
+            color: #000000;
+        }
+
+        .header-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 { 
+            color: var(--primary-color); 
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .card { 
+            background-color: var(--card-bg); 
+            backdrop-filter: blur(4px);
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .q-title { 
+            font-weight: bold; 
+            margin-bottom: 14px; 
+            color: var(--primary-color); 
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        button.opt-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 12px 14px; 
+            background-color: var(--btn-bg); 
+            color: var(--text-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            text-align: left; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        button.opt-btn:hover:not(:disabled) { 
+            background-color: var(--btn-hover); 
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        button.opt-btn:disabled {
+            cursor: default;
+            opacity: 0.95;
+        }
+
+        .feedback { 
+            margin-top: 14px; 
+            display: none; 
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .feedback.correct { 
+            color: var(--correct-text); 
+            background-color: var(--correct-bg);
+            border: 1px solid var(--correct-border);
+        }
+
+        .feedback.wrong { 
+            color: var(--wrong-text); 
+            background-color: var(--wrong-bg);
+            border: 1px solid var(--wrong-border);
+        }
+
+        .quiz-actions {
+            text-align: center;
+            margin: 35px 0 25px 0;
+        }
+
+        #submit-btn {
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+            transition: all 0.2s;
+        }
+
+        #submit-btn:hover {
+            transform: scale(1.02);
+            background-color: #15803d;
+        }
+
+        body.red-mode #submit-btn {
+            background-color: #880000;
+            color: #ff3333;
+            border: 1px solid #ff0000;
+        }
+
+        .restart-btn {
+            margin-top: 15px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            padding: 25px;
+            background-color: var(--card-bg);
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .result-box.visible {
+            display: block;
+        }
+
+        .result-score {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .result-emoji {
+            font-size: 3.8em;
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+        .result-message {
+            font-size: 1.05em;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <button class="red-mode-toggle" onclick="toggleRedMode()">🔴 Luce Rossa</button>
+</div>
+
+<div class="header-container">
+    <h1>✨ Quale delle Tre? - Quiz #19 ✨</h1>
+    <div class="subtitle">Astronomia, Astronomia e Film, Astronomia e Cinema</div>
+</div>
+
+<div id="quiz"></div>
+
+<div class="quiz-actions">
+    <button id="submit-btn" onclick="concludiTest()">Verifica Punteggio Finale</button>
+</div>
+
+<div id="result-box" class="result-box">
+    <div id="result-score" class="result-score"></div>
+    <div id="result-emoji" class="result-emoji"></div>
+    <div id="result-message" class="result-message"></div>
+    <button class="restart-btn" onclick="location.reload()">🔄 Ricomincia il Quiz</button>
+</div>
+
+<footer>
+    idolo1958
+</footer>
+
+<script>
+const rawDomande = [
+    { 
+        q: "1. In astronomia generale, quale classe di galassie è caratterizzata da una forma tondeggiante o ellittica, priva dei caratteristici bracci a spirale e composta prevalentemente da stelle vecchie?", 
+        opts: [
+            "A) Galassie ellittiche", 
+            "B) Galassie a spirale barrata", 
+            "C) Galassie irregolari nane"
+        ], 
+        correctText: "A) Galassie ellittiche",
+        exp: "<strong>Spiegazione:</strong> Le galassie ellittiche presentano un profilo di luminosità liscio e contengono pochissimo gas e polveri interstellari, riducendo quasi del tutto la formazione di nuove stelle."
+    },
+    { 
+        q: "2. Nel film cult di fantascienza «Interstellar» (2014) di Christopher Nolan, quale spettacolare fenomeno astrofisico al centro della trama viene rappresentato con una precisione scientifica senza precedenti grazie alla consulenza del fisico Kip Thorne?", 
+        opts: [
+            "A) Un immenso buco nero supermassiccio battezzato Gargantua", 
+            "B) Un tunnel spaziotemporale che conduce nella nebulosa del Granchio", 
+            "C) Una pioggia di micrometeoriti in orbita attorno a Saturno"
+        ], 
+        correctText: "A) Un immenso buco nero supermassiccio battezzato Gargantua",
+        exp: "<strong>Spiegazione:</strong> Il disco di accrescimento attorno al buco nero Gargantua in <em>Interstellar</em> è stato modellato rigorosamente con equazioni di relatività generale per simulare l'effetto di lente gravitazionale."
+    },
+    { 
+        q: "3. Nella celebre saga di fantascienza di <em>Star Trek</em>, quale astronave immaginaria capitanata dal leggendario James T. Kirk esplora «l'ultima frontiera»?", 
+        opts: [
+            "A) USS Enterprise (NCC-1701)", 
+            "B) Millennium Falcon", 
+            "C) Nostromo (USCSS)"
+        ], 
+        correctText: "A) USS Enterprise (NCC-1701)",
+        exp: "<strong>Spiegazione:</strong> L'USS Enterprise è l'astronave stellare più famosa della storia del cinema e della TV di fantascienza, simbolo iconico del franchise ideato da Gene Roddenberry."
+    },
+    { 
+        q: "4. Quale importante parametro astrofisico descrive la frazione di luce solare che un corpo celeste (come un pianeta o una luna) riflette nello spazio rispetto a quella che riceve?", 
+        opts: [
+            "A) L'albedo", 
+            "B) La parallasse", 
+            "C) L'indice di colore"
+        ], 
+        correctText: "A) L'albedo",
+        exp: "<strong>Spiegazione:</strong> L'albedo misura il potere riflettente di una superficie: un corpo con albedo pari a 0 assorbe tutta la luce, mentre uno con albedo 1 la riflette completamente."
+    },
+    { 
+        q: "5. Nel film drammatico e spaziale «The Martian» (2015) diretto da Ridley Scott, quale pianeta fa da sfondo alle avventure del botanico Mark Watney bloccato in solitudine?", 
+        opts: [
+            "A) Marte", 
+            "B) Venere", 
+            "C) Mercurio"
+        ], 
+        correctText: "A) Marte",
+        exp: "<strong>Spiegazione:</strong> Il film racconta la lotta per la sopravvivenza di un astronauta dimenticato sul Pianeta Rosso, combinando rigorosa ingegneria aerospaziale e botanica di base."
+    },
+    { 
+        q: "6. Quale celebre pellicola cinematografica del 1997 diretta da Robert Zemeckis e tratta dal romanzo di Carl Sagan vede Jodie Foster nei panni di un'astronoma in ascolto di segnali radio extraterrestri?", 
+        opts: [
+            "A) Contact", 
+            "B) Armageddon", 
+            "C) Deep Impact"
+        ], 
+        correctText: "A) Contact",
+        exp: "<strong>Spiegazione:</strong> <em>Contact</em> esplora con rigore scientifico e filosofico il tema del SETI (Search for Extraterrestrial Intelligence) e l'ascolto radioastronomico del cosmo."
+    },
+    { 
+        q: "7. In astronomia e meccanica celeste, come viene definito il punto dell'orbita di un pianeta o di un corpo del sistema solare in cui esso si trova alla minima distanza dal Sole?", 
+        opts: [
+            "A) Perielio", 
+            "B) Afelio", 
+            "C) Perigeo"
+        ], 
+        correctText: "A) Perielio",
+        exp: "<strong>Spiegazione:</strong> Il perielio è il punto di massimo avvicinamento al Sole lungo un'orbita ellittica; l'afelio rappresenta invece il punto di massima distanza."
+    }
+];
+
+// Funzione di utilità per mescolare in modo casuale un array (Fisher-Yates)
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
+const container = document.getElementById("quiz");
+const userSelections = new Array(rawDomande.length).fill(null);
+
+// Elabora le domande randomizzando l'ordine delle opzioni a ogni caricamento
+const domande = rawDomande.map((d, qIdx) => {
+    let optionsList = d.opts.map(opt => ({
+        text: opt,
+        isCorrect: (opt === d.correctText)
+    }));
+    
+    shuffle(optionsList);
+    
+    return {
+        id: qIdx,
+        q: d.q,
+        opts: optionsList,
+        exp: d.exp
+    };
+});
+
+// Renderizza il quiz a schermo
+domande.forEach((d, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+        
+    let html = `<div class="q-title">${d.q}</div>`;
+    d.opts.forEach((optObj, optIdx) => {
+        html += `<button class="opt-btn" id="btn-${i}-${optIdx}" onclick="check(${i}, ${optIdx})">${optObj.text}</button>`;
+    });
+    html += `<div id="fb-${i}" class="feedback"></div>`;
+        
+    card.innerHTML = html;
+    container.appendChild(card);
+});
+
+function toggleRedMode() {
+    document.body.classList.toggle("red-mode");
+}
+
+function check(qIdx, optIdx) {
+    if (userSelections[qIdx] !== null) return;
+    
+    const d = domande[qIdx];
+    const chosenOpt = d.opts[optIdx];
+    userSelections[qIdx] = chosenOpt.isCorrect;
+    
+    const fb = document.getElementById(`fb-${qIdx}`);
+    fb.style.display = "block";
+    
+    let correctOptIdx = d.opts.findIndex(o => o.isCorrect);
+    
+    d.opts.forEach((_, idx) => {
+        const btn = document.getElementById(`btn-${qIdx}-${idx}`);
+        btn.disabled = true;
+        
+        if (idx === optIdx) {
+            btn.style.borderColor = chosenOpt.isCorrect ? 'var(--correct-border)' : 'var(--wrong-border)';
+            btn.style.backgroundColor = chosenOpt.isCorrect ? 'var(--correct-bg)' : 'var(--wrong-bg)';
+        } else if (idx === correctOptIdx) {
+            btn.style.borderColor = 'var(--correct-border)';
+            btn.style.backgroundColor = 'var(--correct-bg)';
+        } else {
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.backgroundColor = 'var(--btn-bg)';
+        }
+    });
+
+    if (chosenOpt.isCorrect) {
+        fb.className = "feedback correct";
+        fb.innerHTML = `✓ <strong>Esatto!</strong> ${d.exp}`;
+    } else {
+        fb.className = "feedback wrong";
+        fb.innerHTML = `✗ <strong>Errato.</strong> La risposta corretta era: <strong>${d.opts[correctOptIdx].text}</strong>.<br>${d.exp}`;
+    }
+}
+
+function concludiTest() {
+    let score = 0;
+    domande.forEach((d, i) => {
+        if (userSelections[i] === true) {
+            score++;
+        }
+    });
+
+    const resultBox = document.getElementById('result-box');
+    const resultScore = document.getElementById('result-score');
+    const resultEmoji = document.getElementById('result-emoji');
+    const resultMessage = document.getElementById('result-message');
+
+    resultScore.innerText = `Punteggio Finale: ${score} su ${domande.length}`;
+
+    if (score <= 2) {
+        resultEmoji.innerText = "😢";
+        resultMessage.innerText = "Peccato! Rileggi le spiegazioni per ciascun quesito e riprova il test per migliorare!";
+    } else if (score <= 4) {
+        resultEmoji.innerText = "🙂";
+        resultMessage.innerText = "Buon tentativo! Hai una discreta conoscenza di base, puoi fare ancora meglio!";
+    } else if (score <= 6) {
+        resultEmoji.innerText = "😊";
+        resultMessage.innerText = "Molto bene! Dimostri un'ottima preparazione complessiva!";
+    } else {
+        resultEmoji.innerText = "🤩";
+        resultMessage.innerText = "Eccellente! Punteggio pieno, sei un vero esperto di astronomia e grande cinema di fantascienza!";
+    }
+
+    resultBox.classList.add('visible');
+    resultBox.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
